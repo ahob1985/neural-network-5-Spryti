@@ -1,4 +1,4 @@
-// Author:
+// Author: Jordan Muturi 
 
 // Global UI Variables
 let canvasDiv;
@@ -39,8 +39,8 @@ function setup() {
   // new code below
   let options = {
     inputs: ["x", "y"],
-    outputs: [""],
-    task: "",
+    outputs: ["frequency"],
+    task: "regression",
     debug: true
   };
   model = ml5.neuralNetwork(options);
@@ -85,7 +85,7 @@ function trainModel() {
   textP.html("Step 2: Training");
   model.normalizeData();
   let options = {
-    epochs: 100
+    epochs: 40
   };
   model.train(options, whileTraining, finishedTraining);
   buttonDiv.style("display", "none");
@@ -118,9 +118,16 @@ function canvasClicked() {
   };
   if(state === "collection") {
     // new code below
-
+    let targetFrequency = notes[notesRadio.value()];
+    let target = {
+      frequency: targetFrequency
+    };
+    model.addData(inputs, target);
+    drawNote(notesRadio.value(), "black", "white");
+    wave.freq(targetFrequency);
+    env.play();
   } else if(state === "prediction") {
-
+    model.predict(inputs, gotResults);
   }
 }
 
@@ -129,6 +136,9 @@ function gotResults(error, results) {
     console.error(error);
   } else {
     // new code below
-
+    let frequency = floor(results[0].value);
+    drawNote(frequency, "white", "blue");
+    wave.freq(results[0].value);
+    env.play();
   }
 }
